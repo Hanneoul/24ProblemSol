@@ -7,6 +7,7 @@ using UnityEditor;
 [CustomEditor(typeof(StaticMeshGen))]
 public class StaticMeshGenEditor : Editor
 {
+    //버튼만들기 예제
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
@@ -21,7 +22,7 @@ public class StaticMeshGenEditor : Editor
     }
 }
 
-
+//메쉬만들기 예제
 public class StaticMeshGen : MonoBehaviour
 {
     // Start is called before the first frame update
