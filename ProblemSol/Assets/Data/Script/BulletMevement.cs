@@ -2,8 +2,7 @@ using DataStrucuture;
 using UnityEngine;
 
 public class Bullet : MonoBehaviour
-{
-    
+{    
     public float BulletSpeed;
     public float BulletRotationSpeed;
     public Vector3 BulletDirection;

@@ -73,13 +73,10 @@ namespace DataStrucuture
 
     }
 
-    public class Stack<T>
-    {
-        public Stack() { }
-        public void Push(T data) { }
-        public T Pop() { }
-    }
-
-
-
+    //public class Stack<T>
+    //{
+    //    public Stack() { }
+    //    public void Push(T data) { }
+    //    public T Pop() { }
+    //}
 }
