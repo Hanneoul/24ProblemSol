@@ -36,20 +36,25 @@ public class StaticMeshGen : MonoBehaviour
             new Vector3 (1.0f, 0.0f, 0.0f),
             new Vector3 (1.0f, 1.0f, 0.0f),
         };
-
-        mesh.vertices = vertices;
-
+        Vector3[] normals = new Vector3[]
+        {
+            new Vector3 (0.0f, 0.0f, -1.0f),
+            new Vector3 (0.0f, 0.0f, -1.0f),
+            new Vector3 (0.0f, 0.0f, -1.0f),
+        };
         int[] triangleIndices = new int[]
         {
             0,2,1,
         };
 
+        mesh.vertices = vertices;
+        mesh.normals = normals;
         mesh.triangles = triangleIndices;
 
         MeshFilter mf = this.AddComponent<MeshFilter>();
-        MeshRenderer mr = this.AddComponent<MeshRenderer>();
-
         mf.mesh = mesh;
+
+        MeshRenderer mr = this.AddComponent<MeshRenderer>();
     }
 
     // Update is called once per frame
