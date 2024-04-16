@@ -29,11 +29,9 @@ public class ChangeMaterialInFrustum : MonoBehaviour
 
         foreach (Renderer renderer in renderers)
         {
-            Vector3 size = renderer.bounds.size;
-            float diameter = Mathf.Max(size.x, Mathf.Max(size.y, size.z));
-
+            
             // Renderer의 중심점이 프러스텀 내에 있는지 확인
-            if (frustum.IsInsideFrustum(renderer.bounds.center, diameter/2.0f))
+            if (frustum.IsInsideFrustum(renderer.bounds.center))
             {
                 // 프러스텀 내에 있는 경우 Material1 적용
                 renderer.material = material1;
@@ -57,12 +55,13 @@ public class FrustumPlanes
         planes = GeometryUtility.CalculateFrustumPlanes(camera);
     }
 
-    public bool IsInsideFrustum(Vector3 point, float sideSize)
+    public bool IsInsideFrustum(Vector3 point)
     {
         foreach (var plane in planes)
         {
             if (!plane.GetSide(point))
             {
+                
                 return false;
             }            
         }
