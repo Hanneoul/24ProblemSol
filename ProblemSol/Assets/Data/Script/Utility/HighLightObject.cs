@@ -1,41 +1,48 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
-public class HighLightObject : MonoBehaviour
+public class ChangeMaterialInFrustum : MonoBehaviour
 {
-    public Material highlightMaterial; // 하이라이트할 머티리얼
-    private Camera mainCamera; // 메인 카메라
+    public Material material1; // 프러스텀 내부에 있는 오브젝트에 적용될 머티리얼
+    public Material material2; // 프러스텀 밖에 있는 오브젝트에 적용될 머티리얼
+
+    private Camera thisCamera;
 
     private void Start()
     {
-        mainCamera = Camera.main;
+        thisCamera = GetComponent<Camera>();
     }
 
     private void Update()
     {
-        // 메인 카메라의 프러스텀을 가져옴
-        FrustumPlanes frustum = new FrustumPlanes(mainCamera);
-
-        // 모든 씬에 있는 모든 MeshRenderer를 가져옴
-        MeshRenderer[] renderers = FindObjectsOfType<MeshRenderer>();
-
-        foreach (MeshRenderer renderer in renderers)
+        if (thisCamera == null)
         {
-            // MeshRenderer가 카메라 프러스텀 내에 있는지 확인
-            if (frustum.IsInsideFrustum(renderer.bounds))
-            {
-                // 하이라이트할 머티리얼 적용
-                renderer.material = highlightMaterial;
-            }
+            Debug.LogError("카메라 컴포넌트를 찾을 수 없습니다.");
+            return;
         }
-    }
 
-    private void OnDrawGizmos()
-    {
-        if (mainCamera != null)
+        // 카메라의 프러스텀을 가져오기
+        FrustumPlanes frustum = new FrustumPlanes(thisCamera);
+
+        // 모든 씬에 있는 모든 Renderer 가져오기
+        Renderer[] renderers = FindObjectsOfType<Renderer>();
+
+        foreach (Renderer renderer in renderers)
         {
-            // 메인 카메라의 프러스텀을 가져와서 시각적으로 표시
-            FrustumPlanes frustum = new FrustumPlanes(mainCamera);
-            frustum.DrawFrustum(Color.yellow);
+            Vector3 size = renderer.bounds.size;
+            float diameter = Mathf.Max(size.x, Mathf.Max(size.y, size.z));
+
+            // Renderer의 중심점이 프러스텀 내에 있는지 확인
+            if (frustum.IsInsideFrustum(renderer.bounds.center, diameter/2.0f))
+            {
+                // 프러스텀 내에 있는 경우 Material1 적용
+                renderer.material = material1;
+            }
+            else
+            {
+                // 프러스텀 밖에 있는 경우 Material2 적용
+                renderer.material = material2;
+            }
         }
     }
 }
@@ -50,39 +57,15 @@ public class FrustumPlanes
         planes = GeometryUtility.CalculateFrustumPlanes(camera);
     }
 
-    public bool IsInsideFrustum(Bounds bounds)
+    public bool IsInsideFrustum(Vector3 point, float sideSize)
     {
-        return GeometryUtility.TestPlanesAABB(planes, bounds);
-    }
-
-    // 에디터에서 프러스텀을 시각적으로 표시하기 위한 함수
-    public void DrawFrustum(Color color)
-    {
-        Gizmos.color = color;
-
-        Matrix4x4 matrix = Matrix4x4.identity;
-        Gizmos.matrix = matrix;
-
-        Vector3 cameraCenter = Camera.main.transform.position + Camera.main.transform.forward * Camera.main.farClipPlane * 0.5f;
         foreach (var plane in planes)
         {
-            
-            Gizmos.DrawFrustum(cameraCenter, Camera.main.fieldOfView, 1000f, 0.1f, 1.777f);
+            if (!plane.GetSide(point))
+            {
+                return false;
+            }            
         }
-    }
-}
-
-// 카메라 스크립트의 확장 메서드
-public static class CameraExtensions
-{
-    // 카메라 공간 플레인을 반환하기 위한 확장 메서드
-    public static Plane GetCameraSpacePlane(this Plane plane)
-    {
-        Matrix4x4 m = Camera.main.worldToCameraMatrix;
-        Vector3 normal = -plane.normal;
-        Vector3 position = plane.normal * plane.distance;
-        normal = m.MultiplyVector(normal).normalized;
-        position = m.MultiplyPoint(position);
-        return new Plane(normal, position);
+        return true;
     }
 }
